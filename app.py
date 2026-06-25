@@ -46,14 +46,18 @@ def fetch_district_data(district: str, lat: float, lon: float, start: str, end: 
 
 
 def aggregate_weekly(df: pd.DataFrame) -> pd.DataFrame:
-    """Resample daily data to weekly averages (week starting Monday)."""
     numeric_cols = ["Temp_C", "Humidity_%", "Precip_mm"]
+    
     weekly = df.groupby("District")[numeric_cols].resample("W-MON", label="left", closed="left").mean()
     weekly = weekly.reset_index()
     weekly.rename(columns={"Date": "Week_Start"}, inplace=True)
     weekly["Week_Start"] = weekly["Week_Start"].dt.strftime("%Y-%m-%d")
-    return weekly
 
+    # Add Zone back by mapping from the original dataframe
+    zone_map = df[["District", "Zone"]].drop_duplicates().set_index("District")["Zone"]
+    weekly["Zone"] = weekly["District"].map(zone_map)
+
+    return weekly
 
 def to_excel(df: pd.DataFrame) -> bytes:
     """Write the dataframe to an in-memory Excel file with one sheet per district."""
