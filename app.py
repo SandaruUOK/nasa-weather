@@ -15,7 +15,7 @@ def fetch_district_data(district: str, lat: float, lon: float, start: str, end: 
     """Fetch daily weather data for a single district from NASA POWER API."""
     params = {
         "parameters": PARAMETERS,
-        "community": "RE",          # Renewable Energy community dataset
+        "community": "RE",
         "longitude": lon,
         "latitude": lat,
         "start": start,
@@ -27,7 +27,6 @@ def fetch_district_data(district: str, lat: float, lon: float, start: str, end: 
         resp.raise_for_status()
         data = resp.json()["properties"]["parameter"]
 
-        # Build a daily dataframe from the nested JSON response
         df = pd.DataFrame(data)
         df.index = pd.to_datetime(df.index, format="%Y%m%d")
         df.index.name = "Date"
@@ -37,7 +36,7 @@ def fetch_district_data(district: str, lat: float, lon: float, start: str, end: 
             "PRECTOTCORR": "Precip_mm",
         }, inplace=True)
         df["District"] = district
-        df["Zone"] = DISTRICTS[district]["zone"] 
+        df["Zone"] = DISTRICTS[district]["zone"]
         return df
 
     except Exception as e:
@@ -46,31 +45,48 @@ def fetch_district_data(district: str, lat: float, lon: float, start: str, end: 
 
 
 def aggregate_weekly(df: pd.DataFrame) -> pd.DataFrame:
+    """Resample daily data to weekly averages and build the final report columns."""
     numeric_cols = ["Temp_C", "Humidity_%", "Precip_mm"]
-    
     weekly = df.groupby("District")[numeric_cols].resample("W-MON", label="left", closed="left").mean()
     weekly = weekly.reset_index()
     weekly.rename(columns={"Date": "Week_Start"}, inplace=True)
-    weekly["Week_Start"] = weekly["Week_Start"].dt.strftime("%Y-%m-%d")
 
-    # Add Zone back by mapping from the original dataframe
-    zone_map = df[["District", "Zone"]].drop_duplicates().set_index("District")["Zone"]
-    weekly["Zone"] = weekly["District"].map(zone_map)
+    # Attach zone back (lost during groupby/resample on numeric-only columns)
+    weekly["Zone"] = weekly["District"].map(lambda d: DISTRICTS[d]["zone"])
+
+    # Derive Year, Month, Week_End, and a per-(Year) running Week_No
+    weekly["Year"] = weekly["Week_Start"].dt.year
+    weekly["Month"] = weekly["Week_Start"].dt.strftime("%B")
+    weekly["Week_End"] = weekly["Week_Start"] + pd.Timedelta(days=6)
+
+    # Week_No = sequential week count within each district's data (1, 2, 3...)
+    weekly["Week_No"] = weekly.groupby("District").cumcount() + 1
+
+    # Format dates as plain YYYY-MM-DD strings for Excel
+    weekly["Week_Start"] = weekly["Week_Start"].dt.strftime("%Y-%m-%d")
+    weekly["Week_End"] = weekly["Week_End"].dt.strftime("%Y-%m-%d")
+
+    # Reorder columns to match the target report layout
+    weekly = weekly[[
+        "Year", "Month", "Week_No", "Week_Start", "Week_End",
+        "District", "Zone", "Temp_C", "Humidity_%", "Precip_mm",
+    ]]
+
+    # Sort chronologically: Year -> Month order -> Week_No -> District
+    month_order = ["January", "February", "March", "April", "May", "June",
+                   "July", "August", "September", "October", "November", "December"]
+    weekly["Month"] = pd.Categorical(weekly["Month"], categories=month_order, ordered=True)
+    weekly = weekly.sort_values(["Year", "Month", "Week_No", "District"]).reset_index(drop=True)
+    weekly["Month"] = weekly["Month"].astype(str)
 
     return weekly
 
+
 def to_excel(df: pd.DataFrame) -> bytes:
-    """Write the dataframe to an in-memory Excel file with one sheet per district."""
+    """Write the dataframe to a single-sheet Excel file."""
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
-        # Summary sheet — all districts together
-        df.to_excel(writer, sheet_name="All Districts", index=False)
-
-        # Individual sheet per district
-        for district, group in df.groupby("District"):
-            safe_name = district[:31]  # Excel sheet name limit
-            group.to_excel(writer, sheet_name=safe_name, index=False)
-
+        df.to_excel(writer, sheet_name="Weekly Weather", index=False)
     return buffer.getvalue()
 
 
@@ -80,7 +96,6 @@ st.set_page_config(page_title="Sri Lanka Weather Fetcher", layout="wide")
 st.title("Sri Lanka District Weather — NASA POWER")
 st.caption("Fetches daily data and aggregates to weekly averages for all 25 districts.")
 
-# Sidebar controls
 with st.sidebar:
     st.header("Settings")
     start_date = st.date_input("Start Date", value=date.today() - timedelta(days=90), min_value=date(1981, 1, 1), max_value=date.today())
@@ -93,7 +108,6 @@ with st.sidebar:
     )
     fetch_btn = st.button("Fetch Weather Data", type="primary", use_container_width=True)
 
-# Resolve district list
 target_districts = selected_districts if selected_districts else list(DISTRICTS.keys())
 
 if start_date >= end_date:
@@ -101,7 +115,6 @@ if start_date >= end_date:
     st.stop()
 
 if fetch_btn:
-    # Format dates as YYYYMMDD required by NASA POWER
     start_str = start_date.strftime("%Y%m%d")
     end_str   = end_date.strftime("%Y%m%d")
 
@@ -111,12 +124,10 @@ if fetch_btn:
     for i, district in enumerate(target_districts):
         coords = DISTRICTS[district]
         progress.progress((i + 1) / len(target_districts), text=f"Fetching {district}…")
-
         df = fetch_district_data(district, coords["lat"], coords["lon"], start_str, end_str)
         if df is not None:
             all_daily.append(df)
-
-        time.sleep(0.3)  # Polite delay to avoid hammering the API
+        time.sleep(0.3)
 
     progress.empty()
 
@@ -124,17 +135,14 @@ if fetch_btn:
         st.error("No data fetched. Check your date range or network.")
         st.stop()
 
-    # Combine all districts and aggregate to weekly
     daily_combined = pd.concat(all_daily)
     weekly_df = aggregate_weekly(daily_combined)
 
     st.success(f"✅ Fetched {len(all_daily)}/{len(target_districts)} districts.")
 
-    # Preview table
     st.subheader("Weekly Data Preview")
     st.dataframe(weekly_df, width='stretch')
 
-    # Download button
     excel_bytes = to_excel(weekly_df)
     st.download_button(
         label="📥 Download Excel",
