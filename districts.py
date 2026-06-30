@@ -24,6 +24,7 @@ DISTRICTS = {
     "Puttalam":     {"lat": 8.0362,  "lon": 79.8283, "zone": "Dry"},
     "Badulla":      {"lat": 6.9934,  "lon": 81.0550, "zone": "Intermediate"},
     "Ampara":       {"lat": 7.2911,  "lon": 81.6724, "zone": "Intermediate"},
+    "Kalmunai":     {"lat": 7.4144,  "lon": 81.8306, "zone": "Intermediate"},
     "Batticaloa":   {"lat": 7.7170,  "lon": 81.6924, "zone": "Intermediate"},
     "Kurunegala":   {"lat": 7.4867,  "lon": 80.3647, "zone": "Intermediate"},
 }
