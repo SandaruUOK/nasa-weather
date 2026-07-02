@@ -46,8 +46,17 @@ def fetch_district_data(district: str, lat: float, lon: float, start: str, end: 
 
 def aggregate_weekly(df: pd.DataFrame) -> pd.DataFrame:
     """Resample daily data to weekly averages and build the final report columns."""
-    numeric_cols = ["Temp_C", "Humidity_%", "Precip_mm"]
-    weekly = df.groupby("District")[numeric_cols].resample("W-MON", label="left", closed="left").mean()
+    # Compute weekly averages for temp and humidity; both avg and sum for rainfall
+    agg_funcs = {
+    "Temp_C": "mean",
+    "Humidity_%": "mean",
+    "Precip_mm": "mean",        # weekly daily average rainfall
+}
+    weekly = df.groupby("District")[["Temp_C", "Humidity_%", "Precip_mm"]].resample(
+    "W-MON", label="left", closed="left").mean()
+    weekly["Rainfall_Total_mm"] = df.groupby("District")["Precip_mm"].resample(
+    "W-MON", label="left", closed="left").sum()
+    weekly = weekly.reset_index()
     weekly = weekly.reset_index()
     weekly.rename(columns={"Date": "Week_Start"}, inplace=True)
 
@@ -59,8 +68,16 @@ def aggregate_weekly(df: pd.DataFrame) -> pd.DataFrame:
     weekly["Month"] = weekly["Week_Start"].dt.strftime("%B")
     weekly["Week_End"] = weekly["Week_Start"] + pd.Timedelta(days=6)
 
-    # Week_No = sequential week count within each district's data (1, 2, 3...)
+    # Sequential week counter per district (relative to date range)
     weekly["Week_No"] = weekly.groupby("District").cumcount() + 1
+
+    # CDC Epi week: Sun-Sat calendar, Week 1 = week containing Jan 1
+    # Derived from Week_Start date before it gets converted to string
+    weekly["Epi_Week"] = pd.to_datetime(weekly["Week_Start"]).apply(
+    lambda d: (d + pd.Timedelta(days=1)).isocalendar()[1]
+    if (d + pd.Timedelta(days=1)).isocalendar()[0] == d.year
+    else 1
+   )
 
     # Format dates as plain YYYY-MM-DD strings for Excel
     weekly["Week_Start"] = weekly["Week_Start"].dt.strftime("%Y-%m-%d")
@@ -68,9 +85,9 @@ def aggregate_weekly(df: pd.DataFrame) -> pd.DataFrame:
 
     # Reorder columns to match the target report layout
     weekly = weekly[[
-        "Year", "Month", "Week_No", "Week_Start", "Week_End",
-        "District", "Zone", "Temp_C", "Humidity_%", "Precip_mm",
-    ]]
+    "Year", "Month", "Week_No", "Epi_Week", "Week_Start", "Week_End",
+    "District", "Zone", "Temp_C", "Humidity_%", "Precip_mm", "Rainfall_Total_mm",
+]]
 
      # Preserve custom district order defined in DISTRICTS dict
     district_order = list(DISTRICTS.keys())
