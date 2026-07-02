@@ -72,12 +72,17 @@ def aggregate_weekly(df: pd.DataFrame) -> pd.DataFrame:
         "District", "Zone", "Temp_C", "Humidity_%", "Precip_mm",
     ]]
 
-    # Sort chronologically: Year -> Month order -> Week_No -> District
+     # Preserve custom district order defined in DISTRICTS dict
+    district_order = list(DISTRICTS.keys())
+    weekly["District"] = pd.Categorical(weekly["District"], categories=district_order, ordered=True)
+
+    # Sort: Year -> Month -> Week_No -> District (respects custom district order)
     month_order = ["January", "February", "March", "April", "May", "June",
-                   "July", "August", "September", "October", "November", "December"]
+               "July", "August", "September", "October", "November", "December"]
     weekly["Month"] = pd.Categorical(weekly["Month"], categories=month_order, ordered=True)
     weekly = weekly.sort_values(["Year", "Month", "Week_No", "District"]).reset_index(drop=True)
     weekly["Month"] = weekly["Month"].astype(str)
+    weekly["District"] = weekly["District"].astype(str)
 
     return weekly
 
