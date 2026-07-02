@@ -8,23 +8,32 @@ DISTRICTS = {
     "Matale":       {"lat": 7.4675,  "lon": 80.6234, "zone": "Wet"},
     "Nuwara Eliya": {"lat": 6.9497,  "lon": 80.7891, "zone": "Wet"},
     "Galle":        {"lat": 6.0535,  "lon": 80.2210, "zone": "Wet"},
+    "Hambantota":   {"lat": 6.1429,  "lon": 81.1212, "zone": "Dry"},
     "Matara":       {"lat": 5.9549,  "lon": 80.5550, "zone": "Wet"},
-    "Ratnapura":    {"lat": 6.6828,  "lon": 80.3992, "zone": "Wet"},
-    "Kegalle":      {"lat": 7.2513,  "lon": 80.3464, "zone": "Wet"},
     "Jaffna":       {"lat": 9.6615,  "lon": 80.0255, "zone": "Dry"},
     "Kilinochchi":  {"lat": 9.3803,  "lon": 80.3770, "zone": "Dry"},
     "Mannar":       {"lat": 8.9810,  "lon": 79.9044, "zone": "Dry"},
     "Vavuniya":     {"lat": 8.7514,  "lon": 80.4971, "zone": "Dry"},
     "Mullaitivu":   {"lat": 9.2671,  "lon": 80.8128, "zone": "Dry"},
+    "Batticaloa":   {"lat": 7.7170,  "lon": 81.6924, "zone": "Intermediate"},
+    "Ampara":       {"lat": 7.2911,  "lon": 81.6724, "zone": "Intermediate"},
     "Trincomalee":  {"lat": 8.5922,  "lon": 81.1996, "zone": "Dry"},
+    "Kurunegala":   {"lat": 7.4867,  "lon": 80.3647, "zone": "Intermediate"},
+    "Puttalam":     {"lat": 8.0362,  "lon": 79.8283, "zone": "Dry"},
     "Anuradhapura": {"lat": 8.3114,  "lon": 80.4037, "zone": "Dry"},
     "Polonnaruwa":  {"lat": 7.9403,  "lon": 81.0188, "zone": "Dry"},
-    "Hambantota":   {"lat": 6.1429,  "lon": 81.1212, "zone": "Dry"},
-    "Moneragala":   {"lat": 6.8728,  "lon": 81.3507, "zone": "Dry"},
-    "Puttalam":     {"lat": 8.0362,  "lon": 79.8283, "zone": "Dry"},
     "Badulla":      {"lat": 6.9934,  "lon": 81.0550, "zone": "Intermediate"},
-    "Ampara":       {"lat": 7.2911,  "lon": 81.6724, "zone": "Intermediate"},
+    "Moneragala":   {"lat": 6.8728,  "lon": 81.3507, "zone": "Dry"},
+    "Ratnapura":    {"lat": 6.6828,  "lon": 80.3992, "zone": "Wet"},
+    "Kegalle":      {"lat": 7.2513,  "lon": 80.3464, "zone": "Wet"},
     "Kalmunai":     {"lat": 7.4144,  "lon": 81.8306, "zone": "Intermediate"},
-    "Batticaloa":   {"lat": 7.7170,  "lon": 81.6924, "zone": "Intermediate"},
-    "Kurunegala":   {"lat": 7.4867,  "lon": 80.3647, "zone": "Intermediate"},
+   
+   
+    
+    
+    
+    
+    
+    
+    
 }
