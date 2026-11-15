@@ -5,7 +5,7 @@ DISTRICTS = {
     "Gampaha":      {"lat": 7.0873,  "lon": 80.0144, "zone": "Wet"},
     "Kalutara":     {"lat": 6.5854,  "lon": 80.2108, "zone": "Wet"},
     "Kandy":        {"lat": 7.2906,  "lon": 80.6337, "zone": "Wet"},
-    "Matale":       {"lat": 7.4675,  "lon": 80.6234, "zone": "Wet"},
+    "Matale":       {"lat": 7.4675,  "lon": 80.6234, "zone": "Intermediate"},
     "Nuwara Eliya": {"lat": 6.9497,  "lon": 80.7891, "zone": "Wet"},
     "Galle":        {"lat": 6.0535,  "lon": 80.2210, "zone": "Wet"},
     "Hambantota":   {"lat": 6.1429,  "lon": 81.1212, "zone": "Dry"},
@@ -15,8 +15,8 @@ DISTRICTS = {
     "Mannar":       {"lat": 8.9810,  "lon": 79.9044, "zone": "Dry"},
     "Vavuniya":     {"lat": 8.7514,  "lon": 80.4971, "zone": "Dry"},
     "Mullaitivu":   {"lat": 9.2671,  "lon": 80.8128, "zone": "Dry"},
-    "Batticaloa":   {"lat": 7.7170,  "lon": 81.6924, "zone": "Intermediate"},
-    "Ampara":       {"lat": 7.2911,  "lon": 81.6724, "zone": "Intermediate"},
+    "Batticaloa":   {"lat": 7.7170,  "lon": 81.6924, "zone": "Dry"},
+    "Ampara":       {"lat": 7.2911,  "lon": 81.6724, "zone": "Dry"},
     "Trincomalee":  {"lat": 8.5922,  "lon": 81.1996, "zone": "Dry"},
     "Kurunegala":   {"lat": 7.4867,  "lon": 80.3647, "zone": "Intermediate"},
     "Puttalam":     {"lat": 8.0362,  "lon": 79.8283, "zone": "Dry"},
@@ -26,7 +26,7 @@ DISTRICTS = {
     "Moneragala":   {"lat": 6.8728,  "lon": 81.3507, "zone": "Dry"},
     "Ratnapura":    {"lat": 6.6828,  "lon": 80.3992, "zone": "Wet"},
     "Kegalle":      {"lat": 7.2513,  "lon": 80.3464, "zone": "Wet"},
-    "Kalmunai":     {"lat": 7.4144,  "lon": 81.8306, "zone": "Intermediate"},
+    "Kalmunai":     {"lat": 7.4144,  "lon": 81.8306, "zone": "Dry"},
    
    
     
